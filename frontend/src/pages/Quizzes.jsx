@@ -9,6 +9,7 @@ const Quizzes = () => {
   const [filter, setFilter] = useState('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showQuizModal, setShowQuizModal] = useState(false);
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [quizAnswers, setQuizAnswers] = useState({});
   const [quizStartTime, setQuizStartTime] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -128,6 +129,7 @@ const Quizzes = () => {
       if (response.data.success) {
         alert(`Quiz completed! Score: ${response.data.data.score}% | Points earned: ${response.data.data.pointsEarned}`);
         setShowQuizModal(false);
+        setSelectedQuiz(null);
         setQuizAnswers({});
         setQuizStartTime(null);
         fetchQuizzes(); // Refresh the list
