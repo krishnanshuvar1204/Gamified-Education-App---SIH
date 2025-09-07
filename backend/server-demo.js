@@ -289,6 +289,36 @@ app.post('/api/tasks', (req, res) => {
   });
 });
 
+app.put('/api/tasks/:id', (req, res) => {
+  const { title, description, category, points, difficulty, dueDate } = req.body;
+  
+  const taskIndex = mockTasks.findIndex(t => t.id === req.params.id);
+  if (taskIndex === -1) {
+    return res.status(404).json({
+      success: false,
+      message: 'Task not found'
+    });
+  }
+  
+  // Update task
+  mockTasks[taskIndex] = {
+    ...mockTasks[taskIndex],
+    title,
+    description,
+    category,
+    points: parseInt(points),
+    difficulty,
+    dueDate: new Date(dueDate),
+    updatedAt: new Date().toISOString()
+  };
+  
+  res.json({
+    success: true,
+    message: 'Task updated successfully',
+    data: mockTasks[taskIndex]
+  });
+});
+
 app.delete('/api/tasks/:id', (req, res) => {
   const taskIndex = mockTasks.findIndex(t => t.id === req.params.id);
   if (taskIndex === -1) {
@@ -307,7 +337,7 @@ app.delete('/api/tasks/:id', (req, res) => {
 });
 
 app.post('/api/tasks/submit', (req, res) => {
-  const { taskId, description } = req.body;
+  const { taskId, description, studentId } = req.body;
   
   const task = mockTasks.find(t => t.id === taskId);
   if (!task) {
@@ -317,14 +347,22 @@ app.post('/api/tasks/submit', (req, res) => {
     });
   }
   
-  // Add submission to task
+  // Check if student has already submitted this task
   if (!task.submissions) {
     task.submissions = [];
   }
   
+  const existingSubmission = task.submissions.find(sub => sub.student === studentId);
+  if (existingSubmission) {
+    return res.status(400).json({
+      success: false,
+      message: 'You have already submitted this task'
+    });
+  }
+  
   const submission = {
     id: Date.now().toString(),
-    student: '3', // Demo student ID
+    student: studentId, // Use actual student ID
     description,
     status: 'pending',
     submittedAt: new Date().toISOString()
@@ -378,6 +416,36 @@ app.post('/api/quizzes', (req, res) => {
     success: true,
     message: 'Quiz created successfully',
     data: newQuiz
+  });
+});
+
+app.put('/api/quizzes/:id', (req, res) => {
+  const { title, description, category, points, timeLimit, questions } = req.body;
+  
+  const quizIndex = mockQuizzes.findIndex(q => q.id === req.params.id);
+  if (quizIndex === -1) {
+    return res.status(404).json({
+      success: false,
+      message: 'Quiz not found'
+    });
+  }
+  
+  // Update quiz
+  mockQuizzes[quizIndex] = {
+    ...mockQuizzes[quizIndex],
+    title,
+    description,
+    category,
+    points: parseInt(points),
+    timeLimit: parseInt(timeLimit),
+    questions,
+    updatedAt: new Date().toISOString()
+  };
+  
+  res.json({
+    success: true,
+    message: 'Quiz updated successfully',
+    data: mockQuizzes[quizIndex]
   });
 });
 
@@ -501,6 +569,64 @@ app.put('/api/tasks/:id/review', (req, res) => {
     success: true,
     message: 'Submission reviewed successfully',
     data: submission
+  });
+});
+
+// Student performance route
+app.get('/api/students/performance', (req, res) => {
+  const studentsPerformance = mockUsers
+    .filter(user => user.role === 'student')
+    .map(student => {
+      // Get task submissions for this student
+      const taskSubmissions = [];
+      mockTasks.forEach(task => {
+        if (task.submissions) {
+          const studentSubmission = task.submissions.find(sub => sub.student === student.id);
+          if (studentSubmission) {
+            taskSubmissions.push({
+              taskId: task.id,
+              taskTitle: task.title,
+              status: studentSubmission.status,
+              pointsAwarded: studentSubmission.pointsAwarded || 0,
+              submittedAt: studentSubmission.submittedAt
+            });
+          }
+        }
+      });
+
+      // Get quiz attempts for this student
+      const quizAttempts = [];
+      mockQuizzes.forEach(quiz => {
+        if (quiz.attempts) {
+          const studentAttempt = quiz.attempts.find(attempt => attempt.student === student.id);
+          if (studentAttempt) {
+            quizAttempts.push({
+              quizId: quiz.id,
+              quizTitle: quiz.title,
+              score: studentAttempt.score,
+              pointsEarned: studentAttempt.pointsEarned,
+              completedAt: studentAttempt.completedAt
+            });
+          }
+        }
+      });
+
+      return {
+        id: student.id,
+        name: student.name,
+        email: student.email,
+        totalPoints: student.points || 0,
+        taskSubmissions,
+        quizAttempts,
+        totalTasks: taskSubmissions.length,
+        completedTasks: taskSubmissions.filter(t => t.status === 'approved').length,
+        totalQuizzes: quizAttempts.length
+      };
+    });
+
+  res.json({
+    success: true,
+    data: studentsPerformance
   });
 });
 

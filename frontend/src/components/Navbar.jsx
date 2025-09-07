@@ -29,9 +29,11 @@ const Navbar = () => {
           
           {user?.role === 'teacher' && (
             <>
-              <Link to="/tasks">Manage Tasks</Link>
-              <Link to="/quizzes">Manage Quizzes</Link>
-              <Link to="/students">Students</Link>
+              <Link to="/tasks">Tasks</Link>
+              <Link to="/quizzes">Quizzes</Link>
+              <Link to="/users">Users</Link>
+              <Link to="/performance">Performance</Link>
+              <Link to="/leaderboard">Leaderboard</Link>
             </>
           )}
           
@@ -40,6 +42,8 @@ const Navbar = () => {
               <Link to="/users">Users</Link>
               <Link to="/tasks">Tasks</Link>
               <Link to="/quizzes">Quizzes</Link>
+              <Link to="/performance">Performance</Link>
+              <Link to="/leaderboard">Leaderboard</Link>
             </>
           )}
         </nav>

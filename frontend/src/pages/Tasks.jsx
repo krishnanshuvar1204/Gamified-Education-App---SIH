@@ -7,9 +7,12 @@ const Tasks = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
+  const [taskDescription, setTaskDescription] = useState('');
   const [selectedTask, setSelectedTask] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
   const [submissionData, setSubmissionData] = useState({ description: '', file: null });
   const [newTask, setNewTask] = useState({ title: '', description: '', category: 'recycling', points: 10, difficulty: 'easy', dueDate: '' });
 
@@ -47,13 +50,39 @@ const Tasks = () => {
     }
   };
 
+  const handleEditTask = (task) => {
+    setEditingTask({
+      ...task,
+      dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateTask = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.put(`/api/tasks/${editingTask.id}`, editingTask);
+      if (response.data.success) {
+        setShowEditModal(false);
+        setEditingTask(null);
+        fetchTasks();
+        alert('Task updated successfully!');
+      }
+    } catch (error) {
+      console.error('Error updating task:', error);
+      alert('Error updating task. Please try again.');
+    }
+  };
+
   const handleDeleteTask = async (taskId) => {
     if (window.confirm('Are you sure you want to delete this task?')) {
       try {
         await axios.delete(`/api/tasks/${taskId}`);
         fetchTasks(); // Refresh the list
+        alert('Task deleted successfully!');
       } catch (error) {
         console.error('Error deleting task:', error);
+        alert('Error deleting task. Please try again.');
       }
     }
   };
@@ -66,25 +95,27 @@ const Tasks = () => {
   const handleSubmissionSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('Submitting task:', selectedTask);
-      console.log('Submission data:', submissionData);
+      console.log('Submitting task:', {
+        taskId: selectedTask.id,
+        description: taskDescription,
+        studentId: user.id
+      });
+
+      const response = await axios.post('/api/tasks/submit', {
+        taskId: selectedTask.id,
+        description: taskDescription,
+        studentId: user.id
+      });
+
+      console.log('Task submission response:', response.data);
       
-      // For demo server, send as JSON instead of FormData
-      const submissionPayload = {
-        taskId: selectedTask.id || selectedTask._id,
-        description: submissionData.description
-      };
-      
-      console.log('Sending payload:', submissionPayload);
-      
-      const response = await axios.post('/api/tasks/submit', submissionPayload);
-      console.log('Submission response:', response.data);
-      
-      setShowSubmissionModal(false);
-      setSubmissionData({ description: '', file: null });
-      setSelectedTask(null);
-      fetchTasks();
-      alert('Task submitted successfully!');
+      if (response.data.success) {
+        alert('Task submitted successfully! It will be reviewed by a teacher.');
+        setShowSubmissionModal(false);
+        setTaskDescription('');
+        setSelectedTask(null);
+        fetchTasks(); // Refresh the list
+      }
     } catch (error) {
       console.error('Error submitting task:', error);
       console.error('Error response:', error.response?.data);
@@ -95,9 +126,16 @@ const Tasks = () => {
 
   const getTaskStatus = (task) => {
     if (!user || !task.submissions) return 'not-started';
-    const submission = task.submissions.find(sub => sub.student === user.id);
-    if (!submission) return 'not-started';
-    return submission.status;
+    const userSubmission = task.submissions.find(sub => sub.student === user.id);
+    if (userSubmission) {
+      return userSubmission.status; // 'pending', 'approved', 'rejected'
+    }
+    return 'not-started';
+  };
+
+  const hasUserSubmittedTask = (task) => {
+    if (!user || !task.submissions) return false;
+    return task.submissions.some(sub => sub.student === user.id);
   };
 
   const getStatusBadge = (status) => {
@@ -153,7 +191,7 @@ const Tasks = () => {
                 <option value="active">Active Tasks</option>
                 <option value="inactive">Inactive Tasks</option>
               </select>
-              {user?.role === 'admin' && (
+              {(user?.role === 'admin' || user?.role === 'teacher') && (
                 <button 
                   className="btn btn-primary ml-auto"
                   onClick={() => setShowCreateModal(true)}
@@ -211,12 +249,19 @@ const Tasks = () => {
                           {user?.role === 'student' ? (
                             <div className="flex items-center gap-2">
                               {getStatusBadge(getTaskStatus(task))}
-                              {getTaskStatus(task) === 'not-started' && (
+                              {!hasUserSubmittedTask(task) ? (
                                 <button 
                                   className="btn btn-sm btn-primary"
                                   onClick={() => handleSubmitTask(task)}
                                 >
                                   Submit
+                                </button>
+                              ) : (
+                                <button 
+                                  className="btn btn-sm btn-secondary"
+                                  disabled
+                                >
+                                  Submitted
                                 </button>
                               )}
                             </div>
@@ -230,7 +275,10 @@ const Tasks = () => {
                         {user?.role === 'admin' && (
                           <td>
                             <div className="flex gap-2">
-                              <button className="btn btn-secondary btn-sm">
+                              <button 
+                                className="btn btn-warning btn-sm"
+                                onClick={() => handleEditTask(task)}
+                              >
                                 Edit
                               </button>
                               <button
@@ -381,8 +429,8 @@ const Tasks = () => {
                       className="form-control"
                       rows="4"
                       placeholder="Describe what you did to complete this task..."
-                      value={submissionData.description}
-                      onChange={(e) => setSubmissionData({...submissionData, description: e.target.value})}
+                      value={taskDescription}
+                      onChange={(e) => setTaskDescription(e.target.value)}
                       required
                     />
                   </div>
@@ -407,6 +455,107 @@ const Tasks = () => {
                   </button>
                   <button type="submit" className="btn btn-primary">
                     Submit Task
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Task Modal */}
+        {showEditModal && editingTask && (
+          <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>Edit Task</h3>
+                <button 
+                  className="modal-close"
+                  onClick={() => setShowEditModal(false)}
+                >
+                  ×
+                </button>
+              </div>
+              <form onSubmit={handleUpdateTask}>
+                <div className="modal-body">
+                  <div className="form-group">
+                    <label>Title</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={editingTask.title}
+                      onChange={(e) => setEditingTask({...editingTask, title: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Description</label>
+                    <textarea
+                      className="form-control"
+                      rows="3"
+                      value={editingTask.description}
+                      onChange={(e) => setEditingTask({...editingTask, description: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Category</label>
+                    <select
+                      className="form-control"
+                      value={editingTask.category}
+                      onChange={(e) => setEditingTask({...editingTask, category: e.target.value})}
+                    >
+                      <option value="recycling">Recycling</option>
+                      <option value="energy">Energy Conservation</option>
+                      <option value="water">Water Conservation</option>
+                      <option value="climate">Climate Action</option>
+                      <option value="biodiversity">Biodiversity</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Points</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      min="1"
+                      max="100"
+                      value={editingTask.points}
+                      onChange={(e) => setEditingTask({...editingTask, points: parseInt(e.target.value)})}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Difficulty</label>
+                    <select
+                      className="form-control"
+                      value={editingTask.difficulty}
+                      onChange={(e) => setEditingTask({...editingTask, difficulty: e.target.value})}
+                    >
+                      <option value="easy">Easy</option>
+                      <option value="medium">Medium</option>
+                      <option value="hard">Hard</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Due Date</label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      value={editingTask.dueDate}
+                      onChange={(e) => setEditingTask({...editingTask, dueDate: e.target.value})}
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary"
+                    onClick={() => setShowEditModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    Update Task
                   </button>
                 </div>
               </form>

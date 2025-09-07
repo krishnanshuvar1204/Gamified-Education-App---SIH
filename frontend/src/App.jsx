@@ -11,6 +11,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import Tasks from './pages/Tasks';
 import Quizzes from './pages/Quizzes';
 import Users from './pages/Users';
+import Leaderboard from './pages/Leaderboard';
+import StudentPerformance from './pages/StudentPerformance';
 import './index.css';
 
 const AppContent = () => {
@@ -67,6 +69,22 @@ const AppContent = () => {
           element={
             <ProtectedRoute>
               <Users />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/leaderboard"
+          element={
+            <ProtectedRoute>
+              <Leaderboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/performance"
+          element={
+            <ProtectedRoute>
+              <StudentPerformance />
             </ProtectedRoute>
           }
         />

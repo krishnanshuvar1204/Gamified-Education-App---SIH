@@ -9,9 +9,10 @@ const Quizzes = () => {
   const [filter, setFilter] = useState('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showQuizModal, setShowQuizModal] = useState(false);
-  const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [quizAnswers, setQuizAnswers] = useState({});
   const [quizStartTime, setQuizStartTime] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingQuiz, setEditingQuiz] = useState(null);
   const [newQuiz, setNewQuiz] = useState({ 
     title: '', 
     description: '', 
@@ -62,13 +63,39 @@ const Quizzes = () => {
     }
   };
 
+  const handleEditQuiz = (quiz) => {
+    setEditingQuiz({
+      ...quiz,
+      questions: quiz.questions || [{ question: '', options: ['', ''], correctAnswer: 0, explanation: '' }]
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateQuiz = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.put(`/api/quizzes/${editingQuiz.id}`, editingQuiz);
+      if (response.data.success) {
+        setShowEditModal(false);
+        setEditingQuiz(null);
+        fetchQuizzes();
+        alert('Quiz updated successfully!');
+      }
+    } catch (error) {
+      console.error('Error updating quiz:', error);
+      alert('Error updating quiz. Please try again.');
+    }
+  };
+
   const handleDeleteQuiz = async (quizId) => {
     if (window.confirm('Are you sure you want to delete this quiz?')) {
       try {
         await axios.delete(`/api/quizzes/${quizId}`);
         fetchQuizzes(); // Refresh the list
+        alert('Quiz deleted successfully!');
       } catch (error) {
         console.error('Error deleting quiz:', error);
+        alert('Error deleting quiz. Please try again.');
       }
     }
   };
@@ -173,7 +200,7 @@ const Quizzes = () => {
                 <option value="active">Active Quizzes</option>
                 <option value="inactive">Inactive Quizzes</option>
               </select>
-              {user?.role === 'admin' && (
+              {(user?.role === 'admin' || user?.role === 'teacher') && (
                 <button 
                   className="btn btn-primary ml-auto"
                   onClick={() => setShowCreateModal(true)}
@@ -263,7 +290,10 @@ const Quizzes = () => {
                         {user?.role === 'admin' && (
                           <td>
                             <div className="flex gap-2">
-                              <button className="btn btn-secondary btn-sm">
+                              <button 
+                                className="btn btn-warning btn-sm"
+                                onClick={() => handleEditQuiz(quiz)}
+                              >
                                 Edit
                               </button>
                               <button
@@ -501,6 +531,97 @@ const Quizzes = () => {
                   Submit Quiz
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Quiz Modal */}
+        {showEditModal && editingQuiz && (
+          <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>Edit Quiz</h3>
+                <button 
+                  className="modal-close"
+                  onClick={() => setShowEditModal(false)}
+                >
+                  ×
+                </button>
+              </div>
+              <form onSubmit={handleUpdateQuiz}>
+                <div className="modal-body">
+                  <div className="form-group">
+                    <label>Title</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={editingQuiz.title}
+                      onChange={(e) => setEditingQuiz({...editingQuiz, title: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Description</label>
+                    <textarea
+                      className="form-control"
+                      rows="3"
+                      value={editingQuiz.description}
+                      onChange={(e) => setEditingQuiz({...editingQuiz, description: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Category</label>
+                    <select
+                      className="form-control"
+                      value={editingQuiz.category}
+                      onChange={(e) => setEditingQuiz({...editingQuiz, category: e.target.value})}
+                    >
+                      <option value="recycling">Recycling</option>
+                      <option value="energy">Energy Conservation</option>
+                      <option value="water">Water Conservation</option>
+                      <option value="climate">Climate Action</option>
+                      <option value="biodiversity">Biodiversity</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Points</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      min="1"
+                      max="50"
+                      value={editingQuiz.points}
+                      onChange={(e) => setEditingQuiz({...editingQuiz, points: parseInt(e.target.value)})}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Time Limit (minutes)</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      min="1"
+                      max="60"
+                      value={editingQuiz.timeLimit}
+                      onChange={(e) => setEditingQuiz({...editingQuiz, timeLimit: parseInt(e.target.value)})}
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary"
+                    onClick={() => setShowEditModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    Update Quiz
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
