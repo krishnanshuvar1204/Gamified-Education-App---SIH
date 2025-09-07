@@ -559,7 +559,7 @@ app.put('/api/tasks/:id/review', (req, res) => {
   
   // Update student points if approved
   if (status === 'approved' && pointsAwarded > 0) {
-    const student = mockUsers.find(u => u.id === '3');
+    const student = mockUsers.find(u => u.id === submission.studentId);
     if (student) {
       student.points = (student.points || 0) + pointsAwarded;
     }
