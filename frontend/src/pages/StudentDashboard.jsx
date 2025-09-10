@@ -4,6 +4,7 @@ import axios from '../config/axios';
 import { useAuth } from '../contexts/AuthContext';
 import LevelDisplay from '../components/LevelDisplay';
 import VirtualGarden from '../components/VirtualGarden';
+import EcoBuddy from '../components/EcoBuddy';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -266,6 +267,9 @@ const StudentDashboard = () => {
           </div>
         </div>
       </div>
+      
+      {/* Eco Buddy - Fixed position floating character */}
+      <EcoBuddy />
     </div>
   );
 };
