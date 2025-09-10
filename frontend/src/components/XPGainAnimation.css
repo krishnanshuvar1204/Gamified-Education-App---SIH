@@ -1,0 +1,84 @@
+.xp-gain-animation {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  pointer-events: none;
+  animation: xpGainFloat 2s ease-out forwards;
+}
+
+.xp-gain-text {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #10b981;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  animation: xpTextPulse 0.5s ease-out;
+}
+
+.xp-gain-sparkles {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.sparkle {
+  position: absolute;
+  font-size: 1.5rem;
+  animation: sparkleFloat 2s ease-out forwards;
+}
+
+.sparkle-1 {
+  top: -20px;
+  left: -30px;
+  animation-delay: 0.2s;
+}
+
+.sparkle-2 {
+  top: -30px;
+  left: 20px;
+  animation-delay: 0.4s;
+}
+
+.sparkle-3 {
+  top: 10px;
+  left: -20px;
+  animation-delay: 0.6s;
+}
+
+@keyframes xpGainFloat {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -80%) scale(1);
+  }
+}
+
+@keyframes xpTextPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes sparkleFloat {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5) rotate(360deg) translateY(-50px);
+  }
+}

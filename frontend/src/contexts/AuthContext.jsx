@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 import axios from '../config/axios';
+import LevelUpModal from '../components/LevelUpModal';
+import XPGainAnimation from '../components/XPGainAnimation';
 
 const AuthContext = createContext();
 
@@ -47,6 +49,9 @@ const authReducer = (state, action) => {
 
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const [showLevelUpModal, setShowLevelUpModal] = useState(false);
+  const [levelUpData, setLevelUpData] = useState(null);
+  const [xpGained, setXpGained] = useState(0);
 
   // Set up axios interceptor
   useEffect(() => {
@@ -124,7 +129,34 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (userData) => {
-    dispatch({ type: 'UPDATE_USER', payload: userData });
+    // Check for level up
+    if (state.user && userData.levelInfo && state.user.levelInfo) {
+      const oldLevel = state.user.levelInfo.currentLevel;
+      const newLevel = userData.levelInfo.currentLevel;
+      
+      if (newLevel > oldLevel) {
+        setLevelUpData({
+          oldLevel,
+          newLevel,
+          newRank: userData.levelInfo.currentRank
+        });
+        setShowLevelUpModal(true);
+      }
+      
+      // Check for XP gain
+      const oldXP = state.user.levelInfo.totalXP || 0;
+      const newXP = userData.levelInfo.totalXP || 0;
+      const xpDiff = newXP - oldXP;
+      
+      if (xpDiff > 0) {
+        setXpGained(xpDiff);
+      }
+    }
+    
+    dispatch({
+      type: 'UPDATE_USER',
+      payload: userData
+    });
   };
 
   const value = {
@@ -138,6 +170,23 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider value={value}>
       {children}
+      
+      {/* Level Up Modal */}
+      {showLevelUpModal && levelUpData && (
+        <LevelUpModal
+          isOpen={showLevelUpModal}
+          onClose={() => setShowLevelUpModal(false)}
+          oldLevel={levelUpData.oldLevel}
+          newLevel={levelUpData.newLevel}
+          newRank={levelUpData.newRank}
+        />
+      )}
+      
+      {/* XP Gain Animation */}
+      <XPGainAnimation
+        xpGained={xpGained}
+        onComplete={() => setXpGained(0)}
+      />
     </AuthContext.Provider>
   );
 };

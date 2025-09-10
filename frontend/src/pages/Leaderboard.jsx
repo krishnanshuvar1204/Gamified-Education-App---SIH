@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../config/axios';
 import { useAuth } from '../contexts/AuthContext';
+import LevelDisplay from '../components/LevelDisplay';
 
 const Leaderboard = () => {
   const { user } = useAuth();
@@ -102,20 +103,32 @@ const Leaderboard = () => {
                             </span>
                           </td>
                           <td>
-                            <div className="flex items-center">
+                            <div className="flex items-center gap-3">
                               <div>
                                 <div className={`font-semibold ${isCurrentUser ? 'text-blue-600' : ''}`}>
                                   {student.name}
                                   {isCurrentUser && <span className="ml-2 text-sm text-blue-500">(You)</span>}
                                 </div>
                                 <div className="text-sm text-gray-500">{student.email}</div>
+                                {student.levelInfo && (
+                                  <div className="mt-1">
+                                    <LevelDisplay user={student} showProgress={false} size="small" />
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </td>
                           <td>
-                            <span className={`badge badge-primary text-lg ${rank <= 3 ? 'badge-lg' : ''}`}>
-                              {student.totalPoints} pts
-                            </span>
+                            <div className="flex flex-col items-start">
+                              <span className={`badge badge-primary text-lg ${rank <= 3 ? 'badge-lg' : ''}`}>
+                                {student.totalPoints} pts
+                              </span>
+                              {student.levelInfo && (
+                                <span className="text-xs text-gray-500 mt-1">
+                                  {student.levelInfo.totalXP} XP
+                                </span>
+                              )}
+                            </div>
                           </td>
                           <td>
                             <span className="text-sm">

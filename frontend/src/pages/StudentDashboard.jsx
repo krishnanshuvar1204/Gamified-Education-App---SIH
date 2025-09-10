@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../config/axios';
 import { useAuth } from '../contexts/AuthContext';
+import LevelDisplay from '../components/LevelDisplay';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -18,7 +19,7 @@ const StudentDashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [user]);
 
   const fetchDashboardData = async () => {
     try {
@@ -48,7 +49,7 @@ const StudentDashboard = () => {
         totalTasks,
         completedTasks,
         pendingTasks,
-        totalPoints: user.points
+        totalPoints: user.xp || user.points || 0
       });
       
       setRecentTasks(tasks.slice(0, 5));
@@ -108,15 +109,20 @@ const StudentDashboard = () => {
           </p>
         </div>
 
+        {/* Level Display */}
+        <div className="level-section">
+          <LevelDisplay user={user} size="large" />
+        </div>
+
         {/* Stats Grid */}
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-number">{stats.totalPoints}</div>
-            <div className="stat-label">Total Points</div>
+            <div className="stat-number">{user.levelInfo?.totalXP || user.xp || user.points || 0}</div>
+            <div className="stat-label">Total XP</div>
           </div>
           <div className="stat-card">
-            <div className="stat-number">{stats.totalTasks}</div>
-            <div className="stat-label">Total Tasks</div>
+            <div className="stat-number">{user.levelInfo?.currentRank?.replace(/🌱|🌿|🌳|🌲|🏞️|🌍|🌟/g, '').trim() || 'Seedling'}</div>
+            <div className="stat-label">Current Rank</div>
           </div>
           <div className="stat-card">
             <div className="stat-number">{stats.completedTasks}</div>

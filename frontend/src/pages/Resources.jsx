@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../config/axios';
 import { useAuth } from '../contexts/AuthContext';
+import { useXPUpdates } from '../hooks/useXPUpdates';
 
 const Resources = () => {
   const { user } = useAuth();
+  const { handleResourceCompletion } = useXPUpdates();
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -81,20 +83,18 @@ const Resources = () => {
         timeTaken: Math.floor((Date.now() - quizStartTime) / 1000),
         studentId: user.id
       });
-
       if (response.data.success) {
         const score = response.data.data.score;
+        const pointsEarned = response.data.data.pointsEarned || 0;
+        
         if (score === 100) {
-          alert(`Perfect! You scored ${score}% and completed this resource!`);
+          alert(`Perfect! You scored ${score}% and completed this resource! +${pointsEarned} XP earned!`);
           setShowQuizModal(false);
-          setSelectedResource(null);
-          setQuizAnswers({});
-          setQuizStartTime(null);
           fetchResources();
+          // Trigger XP update and animations
+          await handleResourceCompletion();
         } else {
           alert(`You scored ${score}%. You need 100% to complete this resource. Please try again!`);
-          // Reset quiz for retry
-          setQuizAnswers({});
           setQuizStartTime(new Date());
         }
       }

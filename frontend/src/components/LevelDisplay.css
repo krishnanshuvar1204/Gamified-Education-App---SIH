@@ -1,0 +1,163 @@
+.level-display {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e5e9;
+  transition: all 0.3s ease;
+}
+
+.level-display:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.level-display-small {
+  padding: 8px 12px;
+  font-size: 0.85em;
+}
+
+.level-display-medium {
+  padding: 16px;
+  font-size: 1em;
+}
+
+.level-display-large {
+  padding: 24px;
+  font-size: 1.1em;
+}
+
+.level-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.level-rank {
+  font-size: 1.2em;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.level-number {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 0.9em;
+  font-weight: 600;
+  color: #333;
+}
+
+.level-progress {
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 6px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, currentColor 0%, rgba(255, 255, 255, 0.2) 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.progress-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9em;
+  color: #555;
+  font-weight: 500;
+}
+
+.current-xp {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.separator {
+  color: #888;
+}
+
+.next-level-xp {
+  color: #666;
+}
+
+.xp-label {
+  color: #888;
+  font-size: 0.85em;
+}
+
+.next-level-info {
+  margin-top: 4px;
+  font-size: 0.8em;
+  color: #666;
+  font-style: italic;
+}
+
+.xp-to-next {
+  background: rgba(37, 99, 235, 0.1);
+  padding: 2px 6px;
+  border-radius: 8px;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+.total-xp {
+  text-align: center;
+  font-size: 0.85em;
+  color: #666;
+  font-weight: 500;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .level-display-medium {
+    padding: 12px;
+    font-size: 0.95em;
+  }
+  
+  .level-display-large {
+    padding: 16px;
+    font-size: 1em;
+  }
+}
+
+/* Animation for level up */
+.level-display.level-up {
+  animation: levelUpPulse 1s ease-in-out;
+}
+
+@keyframes levelUpPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
+  100% { transform: scale(1); }
+}

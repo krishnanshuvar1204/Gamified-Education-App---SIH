@@ -12,13 +12,57 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Mock data
+// XP Level System
+const XP_LEVELS = [
+  { level: 1, minXP: 0, maxXP: 50, rank: "🌱 Seedling", color: "#90EE90" },
+  { level: 2, minXP: 50, maxXP: 100, rank: "🌿 Sprout", color: "#32CD32" },
+  { level: 3, minXP: 100, maxXP: 200, rank: "🌳 Sapling", color: "#228B22" },
+  { level: 4, minXP: 200, maxXP: 350, rank: "🌲 Tree", color: "#006400" },
+  { level: 5, minXP: 350, maxXP: 550, rank: "🏞️ Forest Guardian", color: "#8B4513" },
+  { level: 6, minXP: 550, maxXP: 800, rank: "🌍 Eco Warrior", color: "#4169E1" },
+  { level: 7, minXP: 800, maxXP: 1200, rank: "🌟 Planet Protector", color: "#FFD700" }
+];
+
+// Calculate level info from XP
+const calculateLevelInfo = (xp) => {
+  // Find current level
+  let currentLevelData = XP_LEVELS[0];
+  for (let i = XP_LEVELS.length - 1; i >= 0; i--) {
+    if (xp >= XP_LEVELS[i].minXP) {
+      currentLevelData = XP_LEVELS[i];
+      break;
+    }
+  }
+  
+  // Calculate progress in current level
+  const currentLevelXP = xp - currentLevelData.minXP;
+  const nextLevelXP = currentLevelData.maxXP - currentLevelData.minXP;
+  const progressPercent = Math.round((currentLevelXP / nextLevelXP) * 100);
+  
+  // Next level info
+  const nextLevelData = XP_LEVELS.find(l => l.level === currentLevelData.level + 1);
+  const xpToNextLevel = nextLevelData ? (nextLevelData.minXP - xp) : 0;
+  
+  return {
+    currentLevel: currentLevelData.level,
+    currentRank: currentLevelData.rank,
+    currentLevelColor: currentLevelData.color,
+    currentLevelXP: currentLevelXP,
+    nextLevelXP: nextLevelXP,
+    progressPercent: progressPercent,
+    xpToNextLevel: xpToNextLevel,
+    nextRank: nextLevelData ? nextLevelData.rank : "Max Level",
+    totalXP: xp
+  };
+};
+
+// Mock data with XP system
 const mockUsers = [
-  { id: '1', name: 'Admin User', email: 'admin@nexora.com', password: 'admin123', role: 'admin', points: 0 },
-  { id: '2', name: 'Teacher John', email: 'teacher@nexora.com', password: 'teacher123', role: 'teacher', points: 0 },
-  { id: '3', name: 'Student Alice', email: 'student@nexora.com', password: 'student123', role: 'student', points: 150 },
-  { id: '4', name: 'Student Bob', email: 'bob@nexora.com', password: 'student123', role: 'student', points: 120 },
-  { id: '5', name: 'Student Carol', email: 'carol@nexora.com', password: 'student123', role: 'student', points: 200 }
+  { id: '1', name: 'Admin User', email: 'admin@nexora.com', password: 'admin123', role: 'admin', points: 0, xp: 0, level: 1 },
+  { id: '2', name: 'Teacher John', email: 'teacher1@nexora.com', password: 'teacher123', role: 'teacher', points: 0, xp: 0, level: 1 },
+  { id: '3', name: 'Student Alice', email: 'student1@nexora.com', password: 'student123', role: 'student', points: 150, xp: 150, level: 3 },
+  { id: '4', name: 'Student Bob', email: 'bob@nexora.com', password: 'student123', role: 'student', points: 120, xp: 120, level: 3 },
+  { id: '5', name: 'Student Carol', email: 'carol@nexora.com', password: 'student123', role: 'student', points: 200, xp: 200, level: 4 }
 ];
 
 const mockResources = [
@@ -153,12 +197,19 @@ app.post('/api/auth/login', (req, res) => {
     });
   }
 
+  // Add level info to user data
+  const levelInfo = calculateLevelInfo(user.xp || 0);
+  const userWithLevelInfo = {
+    ...user,
+    levelInfo
+  };
+
   res.json({
     success: true,
     message: 'Login successful',
     data: {
       token: 'demo-token-' + user.id,
-      user: user
+      user: userWithLevelInfo
     }
   });
 });
@@ -182,17 +233,26 @@ app.post('/api/auth/register', (req, res) => {
     password, // Store the password for login
     role,
     points: 0,
+    xp: 0,
+    level: 1,
     badges: []
   };
 
   mockUsers.push(newUser);
+
+  // Add level info to new user
+  const levelInfo = calculateLevelInfo(newUser.xp || 0);
+  const userWithLevelInfo = {
+    ...newUser,
+    levelInfo
+  };
 
   res.status(201).json({
     success: true,
     message: 'User registered successfully',
     data: {
       token: 'demo-token-' + newUser.id,
-      user: newUser
+      user: userWithLevelInfo
     }
   });
 });
@@ -216,9 +276,16 @@ app.get('/api/auth/me', (req, res) => {
     });
   }
 
+  // Add level info to user data
+  const levelInfo = calculateLevelInfo(user.xp || 0);
+  const userWithLevelInfo = {
+    ...user,
+    levelInfo
+  };
+
   res.json({
     success: true,
-    data: { user }
+    data: { user: userWithLevelInfo }
   });
 });
 
@@ -243,8 +310,12 @@ app.get('/api/users/students', (req, res) => {
 app.get('/api/users/leaderboard', (req, res) => {
   const students = mockUsers
     .filter(u => u.role === 'student')
-    .sort((a, b) => b.points - a.points)
-    .slice(0, 10);
+    .sort((a, b) => (b.xp || b.points) - (a.xp || a.points))
+    .slice(0, 10)
+    .map(student => ({
+      ...student,
+      levelInfo: calculateLevelInfo(student.xp || 0)
+    }));
   
   res.json({
     success: true,
@@ -522,10 +593,15 @@ app.post('/api/quizzes/submit', (req, res) => {
   
   quiz.attempts.push(attempt);
   
-  // Update correct student points
+  // Update correct student points and XP
   const student = mockUsers.find(u => u.id === studentId);
   if (student) {
     student.points = (student.points || 0) + pointsEarned;
+    student.xp = (student.xp || 0) + pointsEarned;
+    
+    // Update level based on new XP
+    const levelInfo = calculateLevelInfo(student.xp);
+    student.level = levelInfo.currentLevel;
   }
   
   res.status(201).json({
@@ -562,11 +638,16 @@ app.put('/api/tasks/:id/review', (req, res) => {
   submission.pointsAwarded = pointsAwarded || 0;
   submission.reviewedAt = new Date().toISOString();
   
-  // Update student points if approved
+  // Update student points and XP if approved
   if (status === 'approved' && pointsAwarded > 0) {
     const student = mockUsers.find(u => u.id === submission.studentId);
     if (student) {
       student.points = (student.points || 0) + pointsAwarded;
+      student.xp = (student.xp || 0) + pointsAwarded;
+      
+      // Update level based on new XP
+      const levelInfo = calculateLevelInfo(student.xp);
+      student.level = levelInfo.currentLevel;
     }
   }
   
@@ -695,10 +776,15 @@ app.post('/api/resources/quiz-attempt', (req, res) => {
   if (score === 100 && !resource.completedBy.includes(studentId)) {
     resource.completedBy.push(studentId);
     
-    // Award points to student (10 points for completing a resource)
+    // Award points and XP to student (10 points for completing a resource)
     const student = mockUsers.find(u => u.id === studentId);
     if (student) {
       student.points = (student.points || 0) + 10;
+      student.xp = (student.xp || 0) + 10;
+      
+      // Update level based on new XP
+      const levelInfo = calculateLevelInfo(student.xp);
+      student.level = levelInfo.currentLevel;
     }
   }
   
@@ -735,6 +821,8 @@ app.post('/api/users', (req, res) => {
     password: password || 'password123', // Store password for login
     role,
     points: 0,
+    xp: 0,
+    level: 1,
     badges: [],
     isActive: true,
     createdAt: new Date().toISOString()
