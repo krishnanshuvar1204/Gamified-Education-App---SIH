@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from '../config/axios';
 import { useAuth } from '../contexts/AuthContext';
 import LevelDisplay from '../components/LevelDisplay';
+import VirtualGarden from '../components/VirtualGarden';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -113,6 +114,9 @@ const StudentDashboard = () => {
         <div className="level-section">
           <LevelDisplay user={user} size="large" />
         </div>
+
+        {/* Virtual Garden */}
+        <VirtualGarden user={user} />
 
         {/* Stats Grid */}
         <div className="stats-grid">
