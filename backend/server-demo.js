@@ -12,34 +12,39 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Mock data for demo
+// Mock data
 const mockUsers = [
+  { id: '1', name: 'Admin User', email: 'admin@nexora.com', password: 'admin123', role: 'admin', points: 0 },
+  { id: '2', name: 'Teacher John', email: 'teacher@nexora.com', password: 'teacher123', role: 'teacher', points: 0 },
+  { id: '3', name: 'Student Alice', email: 'student@nexora.com', password: 'student123', role: 'student', points: 150 },
+  { id: '4', name: 'Student Bob', email: 'bob@nexora.com', password: 'student123', role: 'student', points: 120 },
+  { id: '5', name: 'Student Carol', email: 'carol@nexora.com', password: 'student123', role: 'student', points: 200 }
+];
+
+const mockResources = [
   {
     id: '1',
-    name: 'Admin User',
-    email: 'admin@nexora.com',
-    role: 'admin',
-    points: 0,
-    badges: []
-  },
-  {
-    id: '2',
-    name: 'Teacher One',
-    email: 'teacher1@nexora.com',
-    role: 'teacher',
-    points: 0,
-    badges: []
-  },
-  {
-    id: '3',
-    name: 'Student One',
-    email: 'student1@nexora.com',
-    role: 'student',
-    points: 150,
-    badges: [
-      { name: 'Eco Warrior', description: 'Completed 5 environmental tasks' },
-      { name: 'Quiz Master', description: 'Scored 90% or higher on 3 quizzes' }
-    ]
+    title: 'Climate Change Basics',
+    description: 'Learn about the fundamentals of climate change and its impact on our planet.',
+    url: 'https://climate.nasa.gov/kids/explore/what-is-climate-change/',
+    category: 'climate-change',
+    createdBy: '2',
+    createdAt: new Date().toISOString(),
+    completedBy: ['3'],
+    quiz: {
+      questions: [
+        {
+          question: 'What is the main cause of climate change?',
+          options: ['Solar radiation', 'Greenhouse gases', 'Ocean currents', 'Wind patterns'],
+          correctAnswer: 1
+        },
+        {
+          question: 'Which gas contributes most to global warming?',
+          options: ['Oxygen', 'Nitrogen', 'Carbon dioxide', 'Hydrogen'],
+          correctAnswer: 2
+        }
+      ]
+    }
   }
 ];
 
@@ -630,6 +635,86 @@ app.get('/api/students/performance', (req, res) => {
   });
 });
 
+// Resources routes
+app.get('/api/resources', (req, res) => {
+  res.json({
+    success: true,
+    count: mockResources.length,
+    data: mockResources
+  });
+});
+
+app.post('/api/resources', (req, res) => {
+  const { title, description, url, category, quiz } = req.body;
+  
+  const newResource = {
+    id: (mockResources.length + 1).toString(),
+    title,
+    description,
+    url,
+    category,
+    quiz,
+    createdBy: '2', // Demo teacher ID
+    createdAt: new Date().toISOString(),
+    completedBy: []
+  };
+  
+  mockResources.push(newResource);
+  
+  res.status(201).json({
+    success: true,
+    message: 'Resource created successfully',
+    data: newResource
+  });
+});
+
+app.post('/api/resources/quiz-attempt', (req, res) => {
+  const { resourceId, answers, timeTaken, studentId } = req.body;
+  
+  const resource = mockResources.find(r => r.id === resourceId);
+  if (!resource) {
+    return res.status(404).json({
+      success: false,
+      message: 'Resource not found'
+    });
+  }
+  
+  // Calculate score
+  let correctAnswers = 0;
+  const totalQuestions = resource.quiz.questions.length;
+  
+  resource.quiz.questions.forEach((question, index) => {
+    if (answers[index] === question.correctAnswer) {
+      correctAnswers++;
+    }
+  });
+  
+  const score = Math.round((correctAnswers / totalQuestions) * 100);
+  
+  // If score is 100%, mark as completed
+  if (score === 100 && !resource.completedBy.includes(studentId)) {
+    resource.completedBy.push(studentId);
+    
+    // Award points to student (10 points for completing a resource)
+    const student = mockUsers.find(u => u.id === studentId);
+    if (student) {
+      student.points = (student.points || 0) + 10;
+    }
+  }
+  
+  res.json({
+    success: true,
+    message: 'Quiz attempt recorded',
+    data: {
+      score,
+      correctAnswers,
+      totalQuestions,
+      passed: score === 100,
+      pointsEarned: score === 100 ? 10 : 0
+    }
+  });
+});
+
 // User creation route
 app.post('/api/users', (req, res) => {
   const { name, email, password, role = 'student' } = req.body;
@@ -693,4 +778,5 @@ app.listen(PORT, () => {
   console.log(`Teacher: teacher1@nexora.com / teacher123`);
   console.log(`Student: student1@nexora.com / student123`);
 });
+
 

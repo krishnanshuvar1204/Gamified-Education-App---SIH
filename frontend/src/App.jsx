@@ -13,6 +13,7 @@ import Quizzes from './pages/Quizzes';
 import Users from './pages/Users';
 import Leaderboard from './pages/Leaderboard';
 import StudentPerformance from './pages/StudentPerformance';
+import Resources from './pages/Resources';
 import './index.css';
 
 const AppContent = () => {
@@ -88,6 +89,14 @@ const AppContent = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/resources"
+          element={
+            <ProtectedRoute>
+              <Resources />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </div>
@@ -103,4 +112,5 @@ const App = () => {
 };
 
 export default App;
+
 

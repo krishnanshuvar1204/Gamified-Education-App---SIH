@@ -23,6 +23,7 @@ const Navbar = () => {
             <>
               <Link to="/tasks">My Tasks</Link>
               <Link to="/quizzes">Quizzes</Link>
+              <Link to="/resources">Resources</Link>
               <Link to="/leaderboard">Leaderboard</Link>
             </>
           )}
@@ -31,6 +32,7 @@ const Navbar = () => {
             <>
               <Link to="/tasks">Tasks</Link>
               <Link to="/quizzes">Quizzes</Link>
+              <Link to="/resources">Resources</Link>
               <Link to="/users">Users</Link>
               <Link to="/performance">Performance</Link>
               <Link to="/leaderboard">Leaderboard</Link>
@@ -42,6 +44,7 @@ const Navbar = () => {
               <Link to="/users">Users</Link>
               <Link to="/tasks">Tasks</Link>
               <Link to="/quizzes">Quizzes</Link>
+              <Link to="/resources">Resources</Link>
               <Link to="/performance">Performance</Link>
               <Link to="/leaderboard">Leaderboard</Link>
             </>
@@ -65,4 +68,5 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
 

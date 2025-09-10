@@ -45,3 +45,4 @@ console.log('🌐 Frontend will be available at: http://localhost:5173');
 console.log('📱 The UI will show login/register forms (backend needs MongoDB to work)');
 console.log('\n⏹️  Press Ctrl+C to stop the server');
 
+
