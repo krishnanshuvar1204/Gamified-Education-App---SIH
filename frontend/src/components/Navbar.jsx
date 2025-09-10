@@ -24,6 +24,7 @@ const Navbar = () => {
               <Link to="/tasks">My Tasks</Link>
               <Link to="/quizzes">Quizzes</Link>
               <Link to="/resources">Resources</Link>
+              <Link to="/games">Games</Link>
               <Link to="/leaderboard">Leaderboard</Link>
             </>
           )}

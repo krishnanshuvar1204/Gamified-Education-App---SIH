@@ -15,6 +15,7 @@ import Users from './pages/Users';
 import Leaderboard from './pages/Leaderboard';
 import StudentPerformance from './pages/StudentPerformance';
 import Resources from './pages/Resources';
+import Games from './pages/Games';
 import './index.css';
 
 const AppContent = () => {
@@ -99,6 +100,14 @@ const AppContent = () => {
           element={
             <ProtectedRoute>
               <Resources />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/games"
+          element={
+            <ProtectedRoute>
+              <Games />
             </ProtectedRoute>
           }
         />

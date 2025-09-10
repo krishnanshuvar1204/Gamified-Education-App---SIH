@@ -1,0 +1,416 @@
+.mini-games-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #4CAF50, #8BC34A);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  transition: all 0.3s ease;
+}
+
+.games-toggle {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.games-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.toggle-icon {
+  font-size: 1.2rem;
+  margin-right: 10px;
+}
+
+.toggle-text {
+  flex: 1;
+  font-size: 1rem;
+}
+
+.toggle-arrow {
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.mini-games-bar.expanded .toggle-arrow {
+  transform: rotate(90deg);
+}
+
+.games-content {
+  background: white;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.game-card {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border: 2px solid #dee2e6;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.game-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-color: #4CAF50;
+}
+
+.game-emoji {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.game-card h4 {
+  margin: 0 0 8px 0;
+  color: #2d5a2d;
+  font-size: 1.1rem;
+}
+
+.game-card p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.active-game {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.game-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.back-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-right: 15px;
+  transition: background 0.3s ease;
+}
+
+.back-btn:hover {
+  background: #5a6268;
+}
+
+.game-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2d5a2d;
+}
+
+.game-content {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+/* Eco Quiz Styles */
+.eco-quiz h4 {
+  color: #2d5a2d;
+  margin-bottom: 15px;
+}
+
+.quiz-options {
+  display: grid;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.quiz-option {
+  background: white;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  padding: 12px 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.quiz-option:hover {
+  border-color: #4CAF50;
+  background: #f0f8f0;
+}
+
+/* Recycling Sorter Styles */
+.recycling-sorter h4 {
+  color: #2d5a2d;
+  margin-bottom: 15px;
+}
+
+.current-item {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  border: 2px solid #e9ecef;
+}
+
+.item-emoji {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.recycling-bins {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 10px;
+}
+
+.recycling-bin {
+  background: white;
+  border: 3px solid #dee2e6;
+  border-radius: 10px;
+  padding: 15px 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.recycling-bin:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.recycling-bin span {
+  font-size: 1.5rem;
+}
+
+.recycling-bin small {
+  font-size: 0.7rem;
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+/* Carbon Calculator Styles */
+.carbon-calculator h4 {
+  color: #2d5a2d;
+  margin-bottom: 20px;
+}
+
+.scenario {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.scenario p {
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #2d5a2d;
+}
+
+.scenario-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.scenario-option {
+  background: #f8f9fa;
+  border: 2px solid #dee2e6;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.scenario-option:hover {
+  border-color: #4CAF50;
+  background: #f0f8f0;
+}
+
+.scenario-option.selected {
+  background: #4CAF50;
+  color: white;
+  border-color: #4CAF50;
+}
+
+/* Game Complete Styles */
+.game-complete {
+  text-align: center;
+  padding: 30px;
+  background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+  border-radius: 10px;
+  border: 2px solid #4CAF50;
+}
+
+.game-complete h4 {
+  color: #2d5a2d;
+  margin-bottom: 15px;
+  font-size: 1.4rem;
+}
+
+.game-complete p {
+  margin: 8px 0;
+  font-size: 1.1rem;
+}
+
+.game-complete p:last-of-type {
+  color: #4CAF50;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* Button Styles */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-top: 15px;
+}
+
+.btn-primary {
+  background: #4CAF50;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #45a049;
+  transform: translateY(-1px);
+}
+
+.btn-success {
+  background: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .games-toggle {
+    padding: 10px 15px;
+  }
+  
+  .toggle-text {
+    font-size: 0.9rem;
+  }
+  
+  .games-content {
+    padding: 15px;
+  }
+  
+  .games-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .game-card {
+    padding: 15px;
+  }
+  
+  .game-emoji {
+    font-size: 2rem;
+  }
+  
+  .recycling-bins {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .scenario-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .quiz-options {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mini-games-bar {
+    font-size: 0.9rem;
+  }
+  
+  .game-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .back-btn {
+    margin-right: 0;
+  }
+  
+  .recycling-bins {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .current-item {
+    padding: 15px;
+  }
+  
+  .item-emoji {
+    font-size: 2.5rem;
+  }
+}
+
+/* Animation for XP gain */
+@keyframes xpGain {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-20px) scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-40px) scale(0.8);
+    opacity: 0;
+  }
+}
+
+.xp-notification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  animation: xpGain 2s ease-out forwards;
+  z-index: 1001;
+}
