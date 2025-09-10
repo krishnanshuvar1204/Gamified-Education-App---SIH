@@ -17,7 +17,7 @@ const Navbar = () => {
         </Link>
         
         <nav className="nav">
-          <Link to="/">Dashboard</Link>
+          <Link to="/dashboard">Dashboard</Link>
           
           {user?.role === 'student' && (
             <>

@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Home from './pages/Home';
 import StudentDashboard from './pages/StudentDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
 import AdminDashboard from './pages/AdminDashboard';
@@ -33,14 +34,18 @@ const AppContent = () => {
       <Routes>
         <Route 
           path="/login" 
-          element={!isAuthenticated ? <Login /> : <Navigate to="/" />} 
+          element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />} 
         />
         <Route 
           path="/register" 
-          element={!isAuthenticated ? <Register /> : <Navigate to="/" />} 
+          element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" />} 
         />
         <Route
           path="/"
+          element={<Home />}
+        />
+        <Route
+          path="/dashboard"
           element={
             <ProtectedRoute>
               {user?.role === 'student' && <StudentDashboard />}
